@@ -94,6 +94,8 @@
 
 [[inputs.nvidia_smi]]
 
+# workaround to fix nvidia pstate field
+# https://github.com/influxdata/telegraf/issues/11387
 [[processors.regex]]
   order = 10
   alias = 'nvidia_pstate'
