@@ -6048,8 +6048,8 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Telegraf",
-  "uid": "p25e1DA4k",
+  "title": "Telegraf Linux",
+  "uid": "telegraf-linux",
   "version": 104,
   "weekStart": "monday"
 }
