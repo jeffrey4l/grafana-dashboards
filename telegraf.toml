@@ -1,0 +1,113 @@
+[[inputs.internal]]
+##########
+# system #
+##########
+[[inputs.system]]
+[[inputs.kernel]]
+[[inputs.conntrack]]
+[[inputs.processes]]
+# [[inputs.interrupts]]
+
+#######
+# CPU #
+#######
+[[inputs.cpu]]
+  percpu = false
+# [[inputs.linux_cpu]]
+[[inputs.linux_sysctl_fs]]
+
+#######
+# RAM #
+#######
+[[inputs.mem]]
+  fielddrop = [
+    "_percent"
+  ]
+[[inputs.swap]]
+  fielddrop = ['swap_used_percent']
+[[inputs.kernel_vmstat]]
+
+###########
+# network #
+###########
+[[inputs.bond]]
+[[inputs.net]]
+  interfaces = ["eth*", "enp*", "eno*", "p*", "wl*"]
+[[inputs.ethtool]]
+#  interface_exclude = ["tap*"]
+[[inputs.netstat]]
+
+########
+# DISK #
+########
+[[inputs.diskio]]
+  [inputs.diskio.tagdrop]
+    name = ["dm-*"]
+  [inputs.diskio.tagpass]
+    name = ["nvme?n?", "sd?", "vd?", "hd?" ]
+
+#############
+# filesytem #
+#############
+[[inputs.disk]]
+  ignore_fs = [
+    "tmpfs", "devtmpfs", "devfs",
+    "iso9660", "overlay", "aufs",
+    "squashfs"
+  ]
+  fielddrop = [
+    "used",
+    "used_percent",
+    "inodes_used"
+  ]
+#  [inputs.disk.tagdrop]
+#  device = ["dm-*"]
+[[inputs.nfsclient]]
+
+# time
+[[inputs.chrony]]
+
+##########
+# sensor #
+##########
+[[inputs.temp]]
+  [inputs.temp.tagdrop]
+    sensor = ["coretemp_core_*"]
+
+[[inputs.sensors]]
+
+  fielddrop = [
+    "*_fan_pulses",
+    "*_alarm",
+    "*_beep",
+    "*_crit",
+    "*_crit_alarm",
+    "*_max",
+    "*_max_hyst",
+    "*_min",
+    "*_offset",
+    "*_type",
+  ]
+  # drop feature="core_*" tag
+  [inputs.sensors.tagdrop]
+    feature = ["core_*"]
+
+[[inputs.nvidia_smi]]
+
+[[processors.regex]]
+  order = 10
+  alias = 'nvidia_pstate'
+  namepass = ['nvidia_smi']
+
+  [[processors.regex.tags]]
+  key = 'pstate'
+  pattern = 'P(\d)'
+  replacement = '${1}'
+
+[[processors.converter]]
+  order = 20
+  alias = 'nvidia_pstate'
+  namepass = ['nvidia_smi']
+
+  [processors.converter.tags]
+  integer = ['pstate']
