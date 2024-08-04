@@ -1,0 +1,35 @@
+- hosts: localhost
+  gather_facts: false
+  vars:
+    # without tail slash
+    grafana_url: http://localhost:3000
+    grafana_user: admin
+    grafana_password: 123qwe
+    save_to: "files/grafana_dashboards"
+  tasks:
+    - name: ensure the save folder
+      file:
+        path: "{{ save_to }}"
+        state: directory
+      run_once: true
+      delegate_to: localhost
+
+    - name: list all grafana dashboards
+      set_fact:
+        grafana_dashboards: >-
+          {{ lookup(
+               'grafana_dashboard',
+               'grafana_url=' ~ grafana_url ~
+               ' grafana_user=' ~ grafana_user ~
+               ' grafana_password=' ~ grafana_password
+             )}}
+
+    - name: backup the dashboards
+      grafana_dashboard:
+        grafana_url: "{{ grafana_url }}"
+        grafana_user: "{{ grafana_user }}"
+        grafana_password: "{{ grafana_password }}"
+        state: export
+        uid: "{{ item.uid }}"
+        path: "{{ save_to }}/{{ item.title }}.json"
+      with_items: "{{ grafana_dashboards }}"

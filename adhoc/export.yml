@@ -1,0 +1,22 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    # without tail slash
+    url: "http://localhost:3000"
+    user: admin
+    password: 123qwe
+    save_to: "{{ playbook_dir }}/.."
+    grafana_dashboards:
+      - uid: telegraf-linux
+        title: telegraf_linux
+  tasks:
+    - name: backup the dashboards
+      grafana_dashboard:
+        grafana_url: "{{ url }}"
+        grafana_user: "{{ user }}"
+        grafana_password: "{{ password }}"
+        state: export
+        uid: "{{ item.uid }}"
+        path: "{{ save_to }}/{{ item.title }}.json"
+      with_items: "{{ grafana_dashboards }}"
